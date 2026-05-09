@@ -24,7 +24,7 @@ df_state = compute_state_index(df_bills)
 # ── App ───────────────────────────────────────────────────────
 app = dash.Dash(__name__, title="MH-AI Governance Dashboard")
 server = app.server
-app.layout = make_layout(df_state)
+app.layout = make_layout(df_state, df_bills)
 
 # ── Run ───────────────────────────────────────────────────────
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ Design: card-based, single scroll, section-by-section.
 Styled to match academic presentation standards.
 """
 from dash import dcc, html
-from mhai.figures import make_choropleth, make_gap_bar
+from mhai.figures import make_choropleth, make_gap_bar, make_tag_coverage
 
 # ── Style constants ───────────────────────────────────────────
 PAGE_STYLE = {
@@ -83,7 +83,7 @@ STAT_SUBTEXT = {
 }
 
 
-def make_layout(df_state):
+def make_layout(df_state, df_bills):
     return html.Div(
         style=PAGE_STYLE,
         children=[
@@ -333,6 +333,40 @@ def make_layout(df_state):
                     ),
                 ],
             ),
-
+                        # ── Tag Coverage ──────────────────────────────────
+            html.Div(
+                style=CARD_STYLE,
+                children=[
+                    html.Div("Interactive section 3 of 3", style=KICKER_STYLE),
+                    html.H2(
+                        "Which Ethics of Care Protections Are Legislatures Enacting?",
+                        style=SECTION_HEADER_STYLE,
+                    ),
+                    html.P(
+                        "Each bar depicts which ethics-of-care protections appeared in MH-AI legislation "
+                        "between 2022 and 2025. Light blue reflects proposed bills. Dark blue reflects "
+                        "enacted law. The rarest protections — those least likely to survive the "
+                        "legislative process — appear at the top.",
+                        style=BODY_TEXT_STYLE,
+                    ),
+                    html.Div(
+                        style={"marginTop": "16px"},
+                        children=[
+                            dcc.Graph(
+                                id="tag-coverage",
+                                figure=make_tag_coverage(df_bills),
+                                style={"height": "420px"},
+                                config={"displaylogo": False},
+                            )
+                        ],
+                    ),
+                    html.Div(
+                        "Tag presence is binary per bill — a bill either addresses "
+                        "a protection or it does not. Per Shumate et al. (2025): "
+                        "tag assignment was descriptive rather than qualitative.",
+                        style=LIMITATION_STYLE,
+                    ),
+                ],
+            ),
         ],
     )

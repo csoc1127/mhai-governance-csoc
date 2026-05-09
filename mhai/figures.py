@@ -14,6 +14,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
+from mhai.config import EOC_TAGS
 
 
 def make_choropleth(df: pd.DataFrame) -> go.Figure:
@@ -296,6 +297,140 @@ def make_gap_bar(df: pd.DataFrame) -> go.Figure:
     fig.update_yaxes(gridcolor="#f0ede8", tickfont={"size": 10})
 
     return fig
+
+def make_tag_coverage(df_bills: pd.DataFrame) -> go.Figure:
+    """
+    Stacked horizontal bar chart - EoC tag presence across all MH-AI bills.
+
+    For each of the 8 EoC tags, shows bill inclusion amount, split by enacted vs proposed.
+    Sorted by enacted count ascending.
+
+    No state-level analysis here, tag level-only.
+    The distribution should reveal which protections legislatures consistently
+    include and which they omit. 
+
+    Data: Shumate et al. (2025) tag definitions, Table 2.
+    Framework: Tavory (2024) EoC tag mapping.
+    
+    """
+    EOC_TAG_CONTEXT = {
+    "opt_out": {
+        "shumate": "Provides for the ability to opt out of AI services in favor of receiving equivalent human-delivered health services.",
+        "tavory": "Tavory (2024) identifies this as non-negotiable — vulnerable users must have a clear exit pathway to human care.",
+    },
+    "malpractice": {
+        "shumate": "Pertains to liability allocation for AI-related harm, including assigning responsibility to deployers, developers, or practitioners.",
+        "tavory": "Tavory's care-with principle: accountability must follow engineering decisions. Without this, developers externalize harm onto clinicians.",
+    },
+    "event_reporting": {
+        "shumate": "Creates a system for reporting adverse events, near misses, or other safety events involving MH-AI.",
+        "tavory": "Tronto's responsiveness element: care requires monitoring how it lands. No reporting system means no feedback loop.",
+    },
+    "human_in_the_loop": {
+        "shumate": "Explicitly requires a human to monitor, approve, or participate in an essential part of the MH-AI service.",
+        "tavory": "Tavory requires developers to build in human connection pathways — AI cannot replace the therapeutic relationship.",
+    },
+    "safety_standards": {
+        "shumate": "Pertains to safety standards including human overrides, emergency protocols, or prohibitions on high-risk uses.",
+        "tavory": "Tronto's attentiveness element: recognizing user needs requires active safety infrastructure, not passive compliance.",
+    },
+    "practitioner_responsibilities": {
+        "shumate": "Applies requirements on practitioners related to their use of AI systems.",
+        "tavory": "Tronto's responsibility element — but Tavory warns against displacing accountability onto clinicians who cannot audit algorithms.",
+    },
+    "vulnerable_populations": {
+        "shumate": "Creates responsibilities related to vulnerable populations including older adults, children, disabled, and foreign-language speakers.",
+        "tavory": "Fineman's universal vulnerability framework: vulnerability is contextual and ongoing, not a fixed group attribute.",
+    },
+    "disclosure_consent": {
+        "shumate": "Implements requirements to disclose AI system use or features and obtain consent.",
+        "tavory": "Informed consent obligation — NASW Code 1.03a. Without meaningful disclosure, autonomy is performative.",
+    },
+}
+    TAG_LABELS = {
+        "vulnerable_populations":        "Vulnerable Populations",
+        "safety_standards":              "Safety Standards",
+        "human_in_the_loop":             "Human-in-the-Loop",
+        "practitioner_responsibilities": "Practitioner Responsibilities",
+        "malpractice":                   "Malpractice / Liability",
+        "event_reporting":               "Event Reporting",
+        "opt_out":                       "Opt-Out Right",
+        "disclosure_consent":            "Disclosure / Consent",
+    }
+
+    enacted = df_bills[df_bills["status"] == "Enacted"]
+    proposed = df_bills[df_bills["status"] != "Enacted"]
+
+    records = []
+    for tag in EOC_TAGS:
+        context = EOC_TAG_CONTEXT.get(tag, {})
+        records.append({
+            "tag": TAG_LABELS[tag],
+            "enacted": int(enacted[tag].sum()),
+            "proposed": int(proposed[tag].sum()),
+            "shumate": context.get("shumate", ""),
+            "tavory": context.get("tavory", ""),
+        })
+
+    tag_df = pd.DataFrame(records).sort_values("enacted", ascending=False)
+    customdata = tag_df[["shumate", "tavory"]].values
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(
+        y=tag_df["tag"],
+        x=tag_df["proposed"],
+        name="Proposed only",
+        orientation="h",
+        marker_color="#c6dbef",
+        customdata=customdata,
+        hovertemplate=(
+            "<b>%{y}</b><br>"
+            "Proposed bills: %{x}<br><br>"
+            "<i>%{customdata[0]}</i><br><br>"
+            "%{customdata[1]}"
+            "<extra></extra>"
+        ),
+    ))
+
+    fig.add_trace(go.Bar(
+        y=tag_df["tag"],
+        x=tag_df["enacted"],
+        name="Enacted",
+        orientation="h",
+        marker_color="#084594",
+        customdata=customdata,
+        hovertemplate=(
+            "<b>%{y}</b><br>"
+            "Enacted bills: %{x}<br><br>"
+            "<i>%{customdata[0]}</i><br><br>"
+            "%{customdata[1]}"
+            "<extra></extra>"
+        ),
+    ))
+
+    fig.update_layout(
+        barmode="overlay",
+        height=420,
+        margin={"r": 40, "t": 20, "l": 0, "b": 40},
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font={"family": "Georgia, serif", "size": 11},
+        legend={
+            "orientation": "h",
+            "y": 1.08,
+            "x": 0,
+            "font": {"size": 11},
+        },
+        xaxis={
+            "title": "Number of bills",
+            "gridcolor": "#f0ede8",
+        },
+        yaxis={"gridcolor": "#f0ede8"},
+    )
+
+    return fig
+
 
 
 if __name__ == "__main__":

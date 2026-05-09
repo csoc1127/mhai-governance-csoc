@@ -8,9 +8,9 @@ Design: card-based, single scroll, section-by-section.
 Styled to match academic presentation standards.
 """
 from dash import dcc, html
-from mhai.figures import make_choropleth
+from mhai.figures import make_choropleth, make_scatter
 
-# Style constants 
+# ── Style constants ───────────────────────────────────────────
 PAGE_STYLE = {
     "maxWidth": "1200px",
     "margin": "0 auto",
@@ -68,11 +68,26 @@ LIMITATION_STYLE = {
     "marginTop": "12px",
 }
 
+STAT_LABEL = {
+    "fontSize": "12px",
+    "color": "#999",
+    "margin": "0 0 4px",
+    "textTransform": "uppercase",
+    "letterSpacing": "0.04em",
+}
+
+STAT_SUBTEXT = {
+    "fontSize": "12px",
+    "color": "#999",
+    "margin": "4px 0 0",
+}
+
 
 def make_layout(df_state):
     return html.Div(
         style=PAGE_STYLE,
         children=[
+
             # ── Hero ──────────────────────────────────────────
             html.Div(
                 style=CARD_STYLE,
@@ -185,6 +200,59 @@ def make_layout(df_state):
                     ),
                 ],
             ),
+
+            # ── Stats ─────────────────────────────────────────
+            html.Div(
+                style={
+                    **CARD_STYLE,
+                    "display": "grid",
+                    "gridTemplateColumns": "repeat(5, 1fr)",
+                    "gap": "16px",
+                    "padding": "20px 24px",
+                },
+                children=[
+                    html.Div(
+                        style={"borderRight": "1px solid #e0ddd5", "paddingRight": "16px"},
+                        children=[
+                            html.P("Bills reviewed", style=STAT_LABEL),
+                            html.P("793", style={"fontSize": "32px", "fontWeight": "700", "color": "#1a1a2e", "margin": "0"}),
+                            html.P("143 relevant · 20 enacted", style=STAT_SUBTEXT),
+                        ],
+                    ),
+                    html.Div(
+                        style={"borderRight": "1px solid #e0ddd5", "paddingRight": "16px"},
+                        children=[
+                            html.P("States silent", style=STAT_LABEL),
+                            html.P("12 of 50", style={"fontSize": "32px", "fontWeight": "700", "color": "#A32D2D", "margin": "0"}),
+                            html.P("Zero relevant bills introduced", style=STAT_SUBTEXT),
+                        ],
+                    ),
+                    html.Div(
+                        style={"borderRight": "1px solid #e0ddd5", "paddingRight": "16px"},
+                        children=[
+                            html.P("Median EoC enacted", style=STAT_LABEL),
+                            html.P("0%", style={"fontSize": "32px", "fontWeight": "700", "color": "#A32D2D", "margin": "0"}),
+                            html.P("Majority enacted nothing care-based", style=STAT_SUBTEXT),
+                        ],
+                    ),
+                    html.Div(
+                        style={"borderRight": "1px solid #e0ddd5", "paddingRight": "16px"},
+                        children=[
+                            html.P("Mean EoC enacted", style=STAT_LABEL),
+                            html.P("10%", style={"fontSize": "32px", "fontWeight": "700", "color": "#084594", "margin": "0"}),
+                            html.P("Pulled up by CO and UT outliers", style=STAT_SUBTEXT),
+                        ],
+                    ),
+                    html.Div(
+                        children=[
+                            html.P("Explicitly MH-AI", style=STAT_LABEL),
+                            html.P("28 of 143", style={"fontSize": "32px", "fontWeight": "700", "color": "#854F0B", "margin": "0"}),
+                            html.P("Rest incidental to broader AI law", style=STAT_SUBTEXT),
+                        ],
+                    ),
+                ],
+            ),
+
             # ── Map ───────────────────────────────────────────
             html.Div(
                 style=CARD_STYLE,
@@ -205,12 +273,7 @@ def make_layout(df_state):
                     html.Div(
                         "Hover over a state to see its score, bill count, "
                         "and which protections are missing.",
-                        style={
-                            **BODY_TEXT_STYLE,
-                            "marginTop": "8px",
-                            "color": "#666",
-                            "fontSize": "13px",
-                        },
+                        style={**BODY_TEXT_STYLE, "marginTop": "8px", "color": "#666", "fontSize": "13px"},
                     ),
                     html.Div(
                         style={"marginTop": "16px"},
@@ -231,5 +294,46 @@ def make_layout(df_state):
                     ),
                 ],
             ),
+
+            # ── Scatter ───────────────────────────────────────
+            html.Div(
+                style=CARD_STYLE,
+                children=[
+                    html.Div("Interactive section 2 of 3", style=KICKER_STYLE),
+                    html.H2(
+                        "Performative vs. Protective: The Legislative Gap",
+                        style=SECTION_HEADER_STYLE,
+                    ),
+                    html.P(
+                        "Each dot is an active state. X axis shows Responsible AI "
+                        "protections actually enacted. Y axis shows Ethics of Care "
+                        "protections actually enacted. Dot size reflects total bills "
+                        "introduced. Color reflects enactment rate. "
+                        "States in the bottom-left introduced legislation but passed nothing. "
+                        "States in the bottom-right regulate AI technically "
+                        "but ignore relational protections entirely.",
+                        style=BODY_TEXT_STYLE,
+                    ),
+                    html.Div(
+                        style={"marginTop": "16px"},
+                        children=[
+                            dcc.Graph(
+                                id="scatter",
+                                figure=make_scatter(df_state),
+                                style={"height": "500px"},
+                                config={"displaylogo": False},
+                            )
+                        ],
+                    ),
+                    html.Div(
+                        "Proposed bills excluded. Both indices reflect enacted "
+                        "legislation only. Dot size is total bills introduced — "
+                        "large dots near the origin represent performative legislative "
+                        "activity without enacted protection.",
+                        style=LIMITATION_STYLE,
+                    ),
+                ],
+            ),
+
         ],
     )

@@ -78,6 +78,116 @@ def make_choropleth(df: pd.DataFrame) -> go.Figure:
 
     return fig
 
+def make_scatter(df: pd.DataFrame) -> go.Figure:
+    """
+    Performative vs Protective scatter plot.
+
+    X axis: rai_enacted_index — responsible AI protections actually enacted
+    Y axis: eoc_enacted_index — care-based protections actually enacted
+    Size: bill_count — legislative volume
+    Color: enacted_pct — what percentage actually passed
+
+    Design call: both axes use enacted indices only.
+    Proposed coverage excluded; this chart measures governance, not intent.
+
+    The bottom-right cluster is the thesis: states with responsible AI coverage 
+    but no care-based protections.
+
+    """
+    # only show active states
+    dff = df[df["bill_count"] > 0].copy()
+
+    # label the outliers explicitly
+    label_states = {"MA", "TX", "IL", "RI", "CA", "CO", "UT", "NY"}
+    dff["label"] = dff.apply(
+        lambda r: r["state"] if r["state"] in label_states else "", axis=1
+    )
+
+    fig = px.scatter(
+        dff,
+        x="rai_enacted_index",
+        y="eoc_enacted_index",
+        size="bill_count",
+        color="enacted_pct",
+        hover_name="state_name",
+        text="label",
+        hover_data={
+            "rai_enacted_index": ":.1f",
+            "eoc_enacted_index": ":.1f",
+            "bill_count": True,
+            "enacted_pct": ":.1f",
+            "enacted_count": True,
+            "eoc_tags_missing": True,
+        },
+        color_continuous_scale=[
+            [0.0, "#f7f7f7"],
+            [0.25, "#c6dbef"],
+            [0.5, "#6baed6"],
+            [1.0, "#084594"],
+        ],
+        labels={
+            "rai_enacted_index": "Responsible AI Index (enacted)",
+            "eoc_enacted_index": "Ethics of Care Index (enacted)",
+            "bill_count": "Total bills",
+            "enacted_pct": "% enacted",
+            "enacted_count": "Enacted bills",
+            "eoc_tags_missing": "Missing EoC protections",
+        },
+        size_max=40,
+    )
+
+    fig.update_traces(
+        textposition="top center",
+        textfont={"size": 11, "color": "#1a1a2e"},
+    )
+
+    # quadrant lines
+    fig.add_hline(
+        y=5.0,
+        line_dash="dot",
+        line_color="#ccc",
+        annotation_text="EoC midpoint",
+        annotation_position="right",
+        annotation_font_size=10,
+    )
+    fig.add_vline(
+        x=5.0,
+        line_dash="dot",
+        line_color="#ccc",
+        annotation_text="RAI midpoint",
+        annotation_position="top",
+        annotation_font_size=10,
+    )
+
+    fig.update_layout(
+        margin={"r": 40, "t": 20, "l": 40, "b": 40},
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font={"family": "Georgia, serif", "size": 11},
+        coloraxis_colorbar={
+            "title": "% enacted",
+            "thickness": 12,
+            "len": 0.6,
+        },
+        xaxis={
+            "gridcolor": "#f0ede8",
+            "range": [-0.5, 11],
+            "title": "Responsible AI Index — enacted bills only",
+        },
+        yaxis={
+            "gridcolor": "#f0ede8",
+            "range": [-0.5, 11],
+            "title": "Ethics of Care Index — enacted bills only",
+        },
+    )
+
+    return fig
+
+
+
+
+
+
 if __name__ == "__main__":
     from mhai.fetch import fetch_bills
     from mhai.index import compute_state_index

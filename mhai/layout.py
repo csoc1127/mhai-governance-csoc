@@ -8,7 +8,7 @@ Design: card-based, single scroll, section-by-section.
 Styled to match academic presentation standards.
 """
 from dash import dcc, html
-from mhai.figures import make_choropleth, make_scatter
+from mhai.figures import make_choropleth, make_gap_bar
 
 # ── Style constants ───────────────────────────────────────────
 PAGE_STYLE = {
@@ -295,7 +295,7 @@ def make_layout(df_state):
                 ],
             ),
 
-            # ── Scatter ───────────────────────────────────────
+            # ── Gap Bar ───────────────────────────────────────
             html.Div(
                 style=CARD_STYLE,
                 children=[
@@ -305,31 +305,30 @@ def make_layout(df_state):
                         style=SECTION_HEADER_STYLE,
                     ),
                     html.P(
-                        "Each dot is an active state. X axis shows Responsible AI "
-                        "protections actually enacted. Y axis shows Ethics of Care "
-                        "protections actually enacted. Dot size reflects total bills "
-                        "introduced. Color reflects enactment rate. "
-                        "States in the bottom-left introduced legislation but passed nothing. "
-                        "States in the bottom-right regulate AI technically "
-                        "but ignore relational protections entirely.",
+                        "Each state shows two bars per panel — light is proposed coverage "
+                        "across all introduced bills, dark is enacted coverage only. "
+                        "Left panel shows Ethics of Care protections. Right panel shows "
+                        "Responsible AI protections. The gap between light and dark is the "
+                        "performative gap. States sorted by EoC gap — largest at top. "
+                        "A state can score high on RAI and low on EoC — technically regulated "
+                        "but relationally unprotected. That is Tavory's argument made visible.",
                         style=BODY_TEXT_STYLE,
                     ),
                     html.Div(
                         style={"marginTop": "16px"},
                         children=[
                             dcc.Graph(
-                                id="scatter",
-                                figure=make_scatter(df_state),
-                                style={"height": "500px"},
+                                id="gap-bar",
+                                figure=make_gap_bar(df_state),
+                                style={"height": "750px"},
                                 config={"displaylogo": False},
                             )
                         ],
                     ),
                     html.Div(
-                        "Proposed bills excluded. Both indices reflect enacted "
-                        "legislation only. Dot size is total bills introduced — "
-                        "large dots near the origin represent performative legislative "
-                        "activity without enacted protection.",
+                        "Proposed bills excluded from enacted bars. "
+                        "States with zero enacted EoC protections show no dark bar. "
+                        "CO and UT at bottom — smallest gap, most honest governance.",
                         style=LIMITATION_STYLE,
                     ),
                 ],

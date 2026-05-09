@@ -12,7 +12,9 @@ Functions:
 """
 import plotly.express as px
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import pandas as pd
+
 
 def make_choropleth(df: pd.DataFrame) -> go.Figure:
     """""
@@ -184,6 +186,117 @@ def make_scatter(df: pd.DataFrame) -> go.Figure:
     return fig
 
 
+def make_gap_bar(df: pd.DataFrame) -> go.Figure:
+    """"
+    Side-by-side horizontal bar charts -
+    EoC and RAI proposed vs enacted coverage by state
+
+    Left panel: Ethics of Care Index (8 care-based tags)
+    Right panel: Responsible AI Index (17 standard regulatory tags)
+    
+    Panels show proposed vs enacted coverage for each active state.
+    Sorted by EoC gap descending, so states with biggest EoC protection
+    discrepancy surface to the top.
+
+    Design call: overlay mode where light bar is proposed, dark bar is enacted.
+    The visible light portion beyond the dark bar indicates the difference.
+
+    Tavory (2024): RAI alone is insufficient. This chart depicts which states have RAI 
+    coverage without EoC coverage. 
+    - Bottom-right quadrant of scatter but more readable.
+
+    """
+
+    dff = df[df["bill_count"] > 0].copy()
+    dff["eoc_gap"] = dff["eoc_index"] - dff["eoc_enacted_index"]
+    dff = dff.sort_values("eoc_gap", ascending=True)
+
+    fig = make_subplots(
+        rows=1,
+        cols=2,
+        subplot_titles=(
+            "Ethics of Care Index — Proposed vs. Enacted",
+            "Responsible AI Index — Proposed vs. Enacted",
+        ),
+        horizontal_spacing=0.12,
+    )
+
+    # ── Left panel — EoC
+    fig.add_trace(
+        go.Bar(
+            y=dff["state"],
+            x=dff["eoc_index"],
+            name="Proposed",
+            orientation="h",
+            marker_color="#c6dbef",
+            legendgroup="proposed",
+            showlegend=True,
+            hovertemplate="<b>%{y}</b><br>EoC proposed: %{x:.1f}/10<extra></extra>",
+        ),
+        row=1, col=1,
+    )
+    fig.add_trace(
+        go.Bar(
+            y=dff["state"],
+            x=dff["eoc_enacted_index"],
+            name="Enacted",
+            orientation="h",
+            marker_color="#084594",
+            legendgroup="enacted",
+            showlegend=True,
+            hovertemplate="<b>%{y}</b><br>EoC enacted: %{x:.1f}/10<extra></extra>",
+        ),
+        row=1, col=1,
+    )
+
+    # ── Right panel — RAI 
+    fig.add_trace(
+        go.Bar(
+            y=dff["state"],
+            x=dff["rai_index"],
+            name="Proposed",
+            orientation="h",
+            marker_color="#fdd0a2",
+            legendgroup="proposed",
+            showlegend=False,
+            hovertemplate="<b>%{y}</b><br>RAI proposed: %{x:.1f}/10<extra></extra>",
+        ),
+        row=1, col=2,
+    )
+    fig.add_trace(
+        go.Bar(
+            y=dff["state"],
+            x=dff["rai_enacted_index"],
+            name="Enacted",
+            orientation="h",
+            marker_color="#8c2d04",
+            legendgroup="enacted",
+            showlegend=False,
+            hovertemplate="<b>%{y}</b><br>RAI enacted: %{x:.1f}/10<extra></extra>",
+        ),
+        row=1, col=2,
+    )
+
+    fig.update_layout(
+        barmode="overlay",
+        height=750,
+        margin={"r": 40, "t": 60, "l": 60, "b": 40},
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font={"family": "Georgia, serif", "size": 11},
+        legend={
+            "orientation": "h",
+            "y": 1.08,
+            "x": 0.3,
+            "font": {"size": 11},
+        },
+    )
+
+    # same x range both panels
+    fig.update_xaxes(range=[0, 105], gridcolor="#f0ede8", title_text="Coverage (%)")
+    fig.update_yaxes(gridcolor="#f0ede8", tickfont={"size": 10})
+
+    return fig
 
 
 

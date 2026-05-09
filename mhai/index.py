@@ -101,14 +101,29 @@ def compute_state_index(df: pd.DataFrame) -> pd.DataFrame:
 
     return result
 
+# if __name__ == "__main__":
+#     from mhai.fetch import fetch_bills
+#     df = fetch_bills()
+#     idx = compute_state_index(df)
+#     print(idx[["state", "bill_count", "enacted_pct", "eoc_index", "eoc_enacted_index", "rai_index"]]
+#       .sort_values("eoc_index", ascending=False)
+#       .head(15)
+#       .to_string(index=False))
+#     print(f"\nSilent states: {(idx['bill_count'] == 0).sum()}")
+#     print(f"Mean EoC (active states): {idx[idx['bill_count'] > 0]['eoc_index'].mean():.2f}")
+#     print(f"Mean RAI (active states): {idx[idx['bill_count'] > 0]['rai_index'].mean():.2f}")
 if __name__ == "__main__":
     from mhai.fetch import fetch_bills
+
     df = fetch_bills()
     idx = compute_state_index(df)
-    print(idx[["state", "bill_count", "enacted_pct", "eoc_index", "eoc_enacted_index", "rai_index"]]
-      .sort_values("eoc_index", ascending=False)
-      .head(15)
-      .to_string(index=False))
-    print(f"\nSilent states: {(idx['bill_count'] == 0).sum()}")
-    print(f"Mean EoC (active states): {idx[idx['bill_count'] > 0]['eoc_index'].mean():.2f}")
-    print(f"Mean RAI (active states): {idx[idx['bill_count'] > 0]['rai_index'].mean():.2f}")
+
+    print(f"Total states: {len(idx)}")
+    print(f"Silent states: {(idx['bill_count'] == 0).sum()}")
+    print(f"Mean EoC (active): {idx[idx['bill_count'] > 0]['eoc_index'].mean():.2f}")
+    print(f"Mean RAI (active): {idx[idx['bill_count'] > 0]['rai_index'].mean():.2f}")
+    print(f"\nTop 5 by EoC enacted:")
+    print(idx[["state", "eoc_enacted_index", "enacted_pct"]]
+          .sort_values("eoc_enacted_index", ascending=False)
+          .head(5)
+          .to_string(index=False))

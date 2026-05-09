@@ -206,73 +206,72 @@ def make_gap_bar(df: pd.DataFrame) -> go.Figure:
     - Bottom-right quadrant of scatter but more readable.
 
     """
-
     dff = df[df["bill_count"] > 0].copy()
-    dff["eoc_gap"] = dff["eoc_index"] - dff["eoc_enacted_index"]
+    dff["eoc_gap"] = dff["eoc_covered"] - dff["eoc_enacted_count"].fillna(0)
     dff = dff.sort_values("eoc_gap", ascending=True)
 
     fig = make_subplots(
         rows=1,
         cols=2,
         subplot_titles=(
-            "Ethics of Care Index — Proposed vs. Enacted",
-            "Responsible AI Index — Proposed vs. Enacted",
+            "Ethics of Care — Proposed vs. Enacted",
+            "Responsible AI — Proposed vs. Enacted",
         ),
         horizontal_spacing=0.12,
     )
 
-    # ── Left panel — EoC
+    # ── Left panel — EoC ──────────────────────────────────────
     fig.add_trace(
         go.Bar(
             y=dff["state"],
-            x=dff["eoc_index"],
+            x=dff["eoc_covered"],
             name="Proposed",
             orientation="h",
             marker_color="#c6dbef",
             legendgroup="proposed",
             showlegend=True,
-            hovertemplate="<b>%{y}</b><br>EoC proposed: %{x:.1f}/10<extra></extra>",
+            hovertemplate="<b>%{y}</b><br>EoC proposed: %{x} of 8<extra></extra>",
         ),
         row=1, col=1,
     )
     fig.add_trace(
         go.Bar(
             y=dff["state"],
-            x=dff["eoc_enacted_index"],
+            x=dff["eoc_enacted_count"],
             name="Enacted",
             orientation="h",
             marker_color="#084594",
             legendgroup="enacted",
             showlegend=True,
-            hovertemplate="<b>%{y}</b><br>EoC enacted: %{x:.1f}/10<extra></extra>",
+            hovertemplate="<b>%{y}</b><br>EoC enacted: %{x} of 8<extra></extra>",
         ),
         row=1, col=1,
     )
 
-    # ── Right panel — RAI 
+    # ── Right panel — RAI ─────────────────────────────────────
     fig.add_trace(
         go.Bar(
             y=dff["state"],
-            x=dff["rai_index"],
+            x=dff["rai_covered"],
             name="Proposed",
             orientation="h",
             marker_color="#fdd0a2",
             legendgroup="proposed",
             showlegend=False,
-            hovertemplate="<b>%{y}</b><br>RAI proposed: %{x:.1f}/10<extra></extra>",
+            hovertemplate="<b>%{y}</b><br>RAI proposed: %{x} of 17<extra></extra>",
         ),
         row=1, col=2,
     )
     fig.add_trace(
         go.Bar(
             y=dff["state"],
-            x=dff["rai_enacted_index"],
+            x=dff["rai_enacted_count"],
             name="Enacted",
             orientation="h",
             marker_color="#8c2d04",
             legendgroup="enacted",
             showlegend=False,
-            hovertemplate="<b>%{y}</b><br>RAI enacted: %{x:.1f}/10<extra></extra>",
+            hovertemplate="<b>%{y}</b><br>RAI enacted: %{x} of 17<extra></extra>",
         ),
         row=1, col=2,
     )
@@ -292,13 +291,11 @@ def make_gap_bar(df: pd.DataFrame) -> go.Figure:
         },
     )
 
-    # same x range both panels
-    fig.update_xaxes(range=[0, 105], gridcolor="#f0ede8", title_text="Coverage (%)")
+    fig.update_xaxes(range=[0, 9], gridcolor="#f0ede8", title_text="Tags covered (of 8)", col=1)
+    fig.update_xaxes(range=[0, 18], gridcolor="#f0ede8", title_text="Tags covered (of 17)", col=2)
     fig.update_yaxes(gridcolor="#f0ede8", tickfont={"size": 10})
 
     return fig
-
-
 
 
 if __name__ == "__main__":

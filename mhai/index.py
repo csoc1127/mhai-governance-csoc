@@ -79,6 +79,8 @@ def compute_state_index(df: pd.DataFrame) -> pd.DataFrame:
             "explicit_count": (group["taxonomy_code"] == "E").sum(),
             "eoc_covered": len(eoc_covered),
             "rai_covered": len(rai_covered),
+            "eoc_enacted_count": len(eoc_enacted),
+            "rai_enacted_count": len(rai_enacted),
             "eoc_index": round((len(eoc_covered) / len(EOC_TAGS)) * 10, 2),
             "rai_index": round((len(rai_covered) / len(RESPONSIBLE_AI_TAGS)) * 10, 2),
             "eoc_enacted_index": round((len(eoc_enacted) / len(EOC_TAGS)) * 10, 2),

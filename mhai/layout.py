@@ -1,0 +1,184 @@
+"""
+layout.py
+
+Defines the single-page scrollable Dash layout for the
+MH-AI Governance Dashboard.
+
+Design: card-based, single scroll, section-by-section.
+Styled to match academic presentation standards.
+"""
+from dash import dcc, html
+from mhai.figures import make_choropleth
+
+# Style constants 
+PAGE_STYLE = {
+    "maxWidth": "1200px",
+    "margin": "0 auto",
+    "padding": "24px 24px 56px 24px",
+    "fontFamily": "Georgia, serif",
+    "backgroundColor": "#f4f4f1",
+}
+
+CARD_STYLE = {
+    "backgroundColor": "white",
+    "border": "1px solid #e0ddd5",
+    "borderRadius": "12px",
+    "padding": "24px",
+    "marginBottom": "22px",
+    "boxShadow": "0 1px 4px rgba(0,0,0,0.06)",
+}
+
+SECTION_HEADER_STYLE = {
+    "fontSize": "28px",
+    "fontWeight": "700",
+    "marginBottom": "10px",
+    "color": "#1a1a2e",
+}
+
+SUBSECTION_HEADER_STYLE = {
+    "fontSize": "18px",
+    "fontWeight": "600",
+    "marginTop": "0",
+    "marginBottom": "8px",
+    "color": "#1a1a2e",
+}
+
+BODY_TEXT_STYLE = {
+    "fontSize": "15px",
+    "lineHeight": "1.8",
+    "color": "#444",
+    "marginBottom": "0",
+}
+
+KICKER_STYLE = {
+    "fontSize": "12px",
+    "fontWeight": "700",
+    "textTransform": "uppercase",
+    "letterSpacing": "0.06em",
+    "color": "#084594",
+    "marginBottom": "8px",
+}
+
+LIMITATION_STYLE = {
+    "fontSize": "13px",
+    "lineHeight": "1.7",
+    "color": "#666",
+    "borderLeft": "3px solid #084594",
+    "paddingLeft": "12px",
+    "marginTop": "12px",
+}
+
+def make_layout(df_state):
+    return html.Div(
+        style=PAGE_STYLE,
+        children=[
+            # ── Hero ──────────────────────────────────────────
+            html.Div(
+                style=CARD_STYLE,
+                children=[
+                    html.Div(
+                        "MH-AI Governance Dashboard · MSCAPP · University of Chicago",
+                        style=KICKER_STYLE,
+                    ),
+                    html.H1(
+                        "Regulating AI in Mental Health: Efficacy, Not Performance",
+                        style={
+                            "fontSize": "36px",
+                            "fontWeight": "700",
+                            "marginTop": "0",
+                            "marginBottom": "14px",
+                            "color": "#1a1a2e",
+                            "lineHeight": "1.3",
+                        },
+                    ),
+                    html.P(
+                        "Between 2022 and 2025, U.S. state legislatures introduced 793 bills "
+                        "touching artificial intelligence and mental health. 143 were substantively "
+                        "relevant. 20 were enacted. This dashboard asks not how many bills were "
+                        "introduced — but whether the ones that passed actually protect anyone.",
+                        style=BODY_TEXT_STYLE,
+                    ),
+                    html.Div(
+                        style={
+                            "display": "grid",
+                            "gridTemplateColumns": "1fr 1fr",
+                            "gap": "20px",
+                            "marginTop": "20px",
+                        },
+                        children=[
+                            html.Div(
+                                style={
+                                    "backgroundColor": "#f4f4f1",
+                                    "borderRadius": "10px",
+                                    "padding": "16px",
+                                    "borderLeft": "4px solid #084594",
+                                },
+                                children=[
+                                    html.H4(
+                                        "The Ethical Gap",
+                                        style={
+                                            "margin": "0 0 6px",
+                                            "color": "#084594",
+                                            "fontSize": "14px",
+                                            "fontWeight": "700",
+                                            "textTransform": "uppercase",
+                                            "letterSpacing": "0.04em",
+                                        },
+                                    ),
+                                    html.P(
+                                        "Dominant AI regulation treats users as autonomous rational agents. "
+                                        "Mental health AI users are not. They are in crisis, forming attachments, "
+                                        "disclosing intimate information under distress. The Ethics of Care "
+                                        "framework — grounded in social work values — measures the relational "
+                                        "protections that standard regulatory frameworks ignore.",
+                                        style={**BODY_TEXT_STYLE, "fontSize": "14px"},
+                                    ),
+                                ],
+                            ),
+                            html.Div(
+                                style={
+                                    "backgroundColor": "#f4f4f1",
+                                    "borderRadius": "10px",
+                                    "padding": "16px",
+                                    "borderLeft": "4px solid #A32D2D",
+                                },
+                                children=[
+                                    html.H4(
+                                        "The Legislative Gap",
+                                        style={
+                                            "margin": "0 0 6px",
+                                            "color": "#A32D2D",
+                                            "fontSize": "14px",
+                                            "fontWeight": "700",
+                                            "textTransform": "uppercase",
+                                            "letterSpacing": "0.04em",
+                                        },
+                                    ),
+                                    html.P(
+                                        "States introduce bills for political positioning, not patient protection. "
+                                        "Massachusetts has perfect proposed EoC coverage — and zero enacted bills. "
+                                        "This dashboard measures the gap between legislative performance "
+                                        "and actual governance using binary coverage scoring across "
+                                        "care-aligned and responsible AI tag dimensions.",
+                                        style={**BODY_TEXT_STYLE, "fontSize": "14px"},
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                    html.Div(
+                        "Data: Shumate et al. (2025) JMIR Mental Health · "
+                        "Framework: Tavory (2024) JMIR Mental Health · "
+                        "Built by Ciara Staveley-O'Carroll, MSCAPP, University of Chicago",
+                        style={
+                            "fontSize": "12px",
+                            "color": "#999",
+                            "marginTop": "16px",
+                            "borderTop": "1px solid #e0ddd5",
+                            "paddingTop": "12px",
+                        },
+                    ),
+                ],
+            ),
+        ],
+    )

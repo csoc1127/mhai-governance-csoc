@@ -68,6 +68,7 @@ LIMITATION_STYLE = {
     "marginTop": "12px",
 }
 
+
 def make_layout(df_state):
     return html.Div(
         style=PAGE_STYLE,
@@ -126,11 +127,13 @@ def make_layout(df_state):
                                         },
                                     ),
                                     html.P(
-                                        "Dominant AI regulation treats users as autonomous rational agents. "
-                                        "Mental health AI users are not. They are in crisis, forming attachments, "
-                                        "disclosing intimate information under distress. The Ethics of Care "
-                                        "framework — grounded in social work values — measures the relational "
-                                        "protections that standard regulatory frameworks ignore.",
+                                        "Dominant AI regulation treats users as autonomous "
+                                        "rational agents. Mental health AI users are not. "
+                                        "They are in crisis, forming attachments, disclosing "
+                                        "intimate information under distress. The Ethics of Care "
+                                        "framework — grounded in social work values — measures "
+                                        "the relational protections that standard regulatory "
+                                        "frameworks ignore.",
                                         style={**BODY_TEXT_STYLE, "fontSize": "14px"},
                                     ),
                                 ],
@@ -155,11 +158,13 @@ def make_layout(df_state):
                                         },
                                     ),
                                     html.P(
-                                        "States introduce bills for political positioning, not patient protection. "
-                                        "Massachusetts has perfect proposed EoC coverage — and zero enacted bills. "
-                                        "This dashboard measures the gap between legislative performance "
-                                        "and actual governance using binary coverage scoring across "
-                                        "care-aligned and responsible AI tag dimensions.",
+                                        "States introduce bills for political positioning, "
+                                        "not patient protection. Massachusetts has perfect "
+                                        "proposed EoC coverage — and zero enacted bills. "
+                                        "This dashboard measures the gap between legislative "
+                                        "performance and actual governance using binary coverage "
+                                        "scoring across care-aligned and responsible AI tag "
+                                        "dimensions.",
                                         style={**BODY_TEXT_STYLE, "fontSize": "14px"},
                                     ),
                                 ],
@@ -177,6 +182,52 @@ def make_layout(df_state):
                             "borderTop": "1px solid #e0ddd5",
                             "paddingTop": "12px",
                         },
+                    ),
+                ],
+            ),
+            # ── Map ───────────────────────────────────────────
+            html.Div(
+                style=CARD_STYLE,
+                children=[
+                    html.Div("Interactive section 1 of 3", style=KICKER_STYLE),
+                    html.H2(
+                        "Ethics of Care Enacted Index by State",
+                        style=SECTION_HEADER_STYLE,
+                    ),
+                    html.P(
+                        "Each state is colored by its Ethics of Care Enacted Index — "
+                        "the percentage of 8 care-based legislative protections covered "
+                        "by at least one enacted bill. Proposed bills are excluded. "
+                        "A state that introduced comprehensive legislation but passed "
+                        "none scores the same as a state that introduced nothing.",
+                        style=BODY_TEXT_STYLE,
+                    ),
+                    html.Div(
+                        "Hover over a state to see its score, bill count, "
+                        "and which protections are missing.",
+                        style={
+                            **BODY_TEXT_STYLE,
+                            "marginTop": "8px",
+                            "color": "#666",
+                            "fontSize": "13px",
+                        },
+                    ),
+                    html.Div(
+                        style={"marginTop": "16px"},
+                        children=[
+                            dcc.Graph(
+                                id="choropleth",
+                                figure=make_choropleth(df_state),
+                                style={"height": "500px"},
+                                config={"displaylogo": False},
+                            )
+                        ],
+                    ),
+                    html.Div(
+                        "Limitation: tag presence does not confirm scope, "
+                        "enforceability, or population coverage. Per Shumate et al. "
+                        "(2025): tag assignment was descriptive rather than qualitative.",
+                        style=LIMITATION_STYLE,
                     ),
                 ],
             ),

@@ -5,10 +5,9 @@ Defines the single-page scrollable Dash layout for the
 MH-AI Governance Dashboard.
 
 Design: card-based, single scroll, section-by-section.
-Styled to match academic presentation standards.
 """
 from dash import dcc, html
-from mhai.figures import make_choropleth, make_gap_bar, make_tag_coverage
+from mhai.figures import make_choropleth, make_eoc_gap_bar, make_rai_gap_bar, make_tag_coverage
 
 # ── Style constants ───────────────────────────────────────────
 PAGE_STYLE = {
@@ -32,14 +31,6 @@ SECTION_HEADER_STYLE = {
     "fontSize": "28px",
     "fontWeight": "700",
     "marginBottom": "10px",
-    "color": "#1a1a2e",
-}
-
-SUBSECTION_HEADER_STYLE = {
-    "fontSize": "18px",
-    "fontWeight": "600",
-    "marginTop": "0",
-    "marginBottom": "8px",
     "color": "#1a1a2e",
 }
 
@@ -80,6 +71,15 @@ STAT_SUBTEXT = {
     "fontSize": "12px",
     "color": "#999",
     "margin": "4px 0 0",
+}
+
+NAV_STYLE = {
+    "fontSize": "13px",
+    "color": "#666",
+    "lineHeight": "1.8",
+    "borderLeft": "3px solid #e0ddd5",
+    "paddingLeft": "12px",
+    "marginBottom": "0",
 }
 
 
@@ -142,13 +142,12 @@ def make_layout(df_state, df_bills):
                                         },
                                     ),
                                     html.P(
-                                        "Dominant AI regulation treats users as autonomous "
-                                        "rational agents. Mental health AI users are not. "
-                                        "They are in crisis, forming attachments, disclosing "
-                                        "intimate information under distress. The Ethics of Care "
-                                        "framework — grounded in social work values — measures "
-                                        "the relational protections that standard regulatory "
-                                        "frameworks ignore.",
+                                        "Standard AI regulation assumes users are rational and "
+                                        "self-protective. Mental health AI users often are not — "
+                                        "they are in crisis, forming attachments, disclosing "
+                                        "intimate information under distress. The ethics of care "
+                                        "framework measures the relational protections that "
+                                        "standard regulatory models are not designed to require.",
                                         style={**BODY_TEXT_STYLE, "fontSize": "14px"},
                                     ),
                                 ],
@@ -173,13 +172,11 @@ def make_layout(df_state, df_bills):
                                         },
                                     ),
                                     html.P(
-                                        "States introduce bills for political positioning, "
-                                        "not patient protection. Massachusetts has perfect "
-                                        "proposed EoC coverage — and zero enacted bills. "
-                                        "This dashboard measures the gap between legislative "
-                                        "performance and actual governance using binary coverage "
-                                        "scoring across care-aligned and responsible AI tag "
-                                        "dimensions.",
+                                        "States introduce bills to signal concern — not always "
+                                        "to pass law. Massachusetts introduced legislation "
+                                        "covering all eight care-based protections this dashboard "
+                                        "measures. None became law. This dashboard separates "
+                                        "what was proposed from what actually governs.",
                                         style={**BODY_TEXT_STYLE, "fontSize": "14px"},
                                     ),
                                 ],
@@ -216,7 +213,7 @@ def make_layout(df_state, df_bills):
                         children=[
                             html.P("Bills reviewed", style=STAT_LABEL),
                             html.P("793", style={"fontSize": "32px", "fontWeight": "700", "color": "#1a1a2e", "margin": "0"}),
-                            html.P("143 relevant · 20 enacted", style=STAT_SUBTEXT),
+                            html.P("143 relevant · 20 became law", style=STAT_SUBTEXT),
                         ],
                     ),
                     html.Div(
@@ -230,17 +227,17 @@ def make_layout(df_state, df_bills):
                     html.Div(
                         style={"borderRight": "1px solid #e0ddd5", "paddingRight": "16px"},
                         children=[
-                            html.P("Median EoC enacted", style=STAT_LABEL),
-                            html.P("0%", style={"fontSize": "32px", "fontWeight": "700", "color": "#A32D2D", "margin": "0"}),
-                            html.P("Majority enacted nothing care-based", style=STAT_SUBTEXT),
+                            html.P("Median care-based law", style=STAT_LABEL),
+                            html.P("0 of 8", style={"fontSize": "32px", "fontWeight": "700", "color": "#A32D2D", "margin": "0"}),
+                            html.P("Most states passed nothing care-based", style=STAT_SUBTEXT),
                         ],
                     ),
                     html.Div(
                         style={"borderRight": "1px solid #e0ddd5", "paddingRight": "16px"},
                         children=[
-                            html.P("Mean EoC enacted", style=STAT_LABEL),
+                            html.P("Mean care-based law", style=STAT_LABEL),
                             html.P("10%", style={"fontSize": "32px", "fontWeight": "700", "color": "#084594", "margin": "0"}),
-                            html.P("Pulled up by CO and UT outliers", style=STAT_SUBTEXT),
+                            html.P("Pulled up by CO and UT", style=STAT_SUBTEXT),
                         ],
                     ),
                     html.Div(
@@ -253,26 +250,44 @@ def make_layout(df_state, df_bills):
                 ],
             ),
 
+            # ── Dashboard guide ───────────────────────────────
+            html.Div(
+                style={**CARD_STYLE, "backgroundColor": "#f9f8f5"},
+                children=[
+                    html.Div("How to read this dashboard", style=KICKER_STYLE),
+                    html.P(
+                        "Section 1 shows which states have enacted care-based protections into law — "
+                        "the geographic picture of who governs and who does not. "
+                        "Section 2 shows the gap between what states introduced and what actually passed, "
+                        "separately for care-based protections and standard regulatory protections. "
+                        "Section 3 shows which specific protections are most absent from enacted law nationally — "
+                        "and whether even bills written explicitly for mental health AI closed those gaps.",
+                        style=NAV_STYLE,
+                    ),
+                ],
+            ),
+
             # ── Map ───────────────────────────────────────────
             html.Div(
                 style=CARD_STYLE,
                 children=[
                     html.Div("Interactive section 1 of 3", style=KICKER_STYLE),
                     html.H2(
-                        "Ethics of Care Enacted Index by State",
+                        "Care-Based Protections Enacted by State",
                         style=SECTION_HEADER_STYLE,
                     ),
                     html.P(
-                        "Each state is colored by its Ethics of Care Enacted Index — "
-                        "the percentage of 8 care-based legislative protections covered "
-                        "by at least one enacted bill. Proposed bills are excluded. "
-                        "A state that introduced comprehensive legislation but passed "
-                        "none scores the same as a state that introduced nothing.",
+                        "Each state is colored by how many of the eight care-based protections "
+                        "identified in this analysis are covered by at least one enacted bill. "
+                        "Proposed legislation is excluded. A state that introduced comprehensive "
+                        "bills but passed none is indistinguishable from a state that introduced nothing — "
+                        "because for the person using a mental health AI tool in that state, "
+                        "the outcome is the same.",
                         style=BODY_TEXT_STYLE,
                     ),
                     html.Div(
-                        "Hover over a state to see its score, bill count, "
-                        "and which protections are missing.",
+                        "Hover over any state to see its enacted coverage, bill count, "
+                        "and which protections have not yet become law.",
                         style={**BODY_TEXT_STYLE, "marginTop": "8px", "color": "#666", "fontSize": "13px"},
                     ),
                     html.Div(
@@ -287,72 +302,118 @@ def make_layout(df_state, df_bills):
                         ],
                     ),
                     html.Div(
-                        "Limitation: tag presence does not confirm scope, "
-                        "enforceability, or population coverage. Per Shumate et al. "
-                        "(2025): tag assignment was descriptive rather than qualitative.",
+                        "Tag presence does not confirm scope, enforceability, or population coverage. "
+                        "Per Shumate et al. (2025): tag assignment was descriptive rather than qualitative. "
+                        "A bill tagged 'vulnerable populations' focused only on minors receives the same "
+                        "score as one covering cognitive disability and limited English proficiency.",
                         style=LIMITATION_STYLE,
                     ),
                 ],
             ),
 
-            # ── Gap Bar ───────────────────────────────────────
+            # ── EoC Gap Bar ───────────────────────────────────
             html.Div(
                 style=CARD_STYLE,
                 children=[
-                    html.Div("Interactive section 2 of 3", style=KICKER_STYLE),
+                    html.Div("Interactive section 2a of 3", style=KICKER_STYLE),
                     html.H2(
-                        "Performative vs. Protective: The Legislative Gap",
+                        "Care-Based Protections: What Was Introduced vs. What Became Law",
                         style=SECTION_HEADER_STYLE,
                     ),
                     html.P(
-                    "Each state shows two bars per panel — light reflects bills that were introduced, "
-                    "dark reflects bills that became law. "
-                    "The left panel measures care-based protections: whether states have passed laws "
-                    "requiring things like crisis response, the right to speak to a human, informed consent, "
-                    "and developer accountability for harm — the protections most directly tied to "
-                    "vulnerable users in therapeutic relationships. "
-                    "The right panel measures standard AI regulatory protections: transparency, "
-                    "data privacy, bias auditing, civil penalties, and consumer protection — "
-                    "technically important but designed for rational, autonomous users. "
-                    "States at the top passed the most care-based protections into law. "
-                    "A long light bar with no dark bar means a state introduced legislation and passed none. "
-                    "Texas introduced 16 standard regulatory provisions. None became law. "
-                    "Massachusetts introduced care-based protections covering all 8 categories. None became law.",
-                    style=BODY_TEXT_STYLE,
+                        "The eight protections measured here are the ones most directly tied to "
+                        "vulnerable users in therapeutic relationships: crisis response, the right "
+                        "to speak to a human, informed consent, continuity of care, and developer "
+                        "accountability for harm. Light bars show what was introduced. "
+                        "Dark bars show what became law. "
+                        "States at the top passed the most. States at the bottom — including some "
+                        "of the most legislatively active — passed nothing. "
+                        "Hover the dark bar to see exactly which protections your state has "
+                        "and has not enacted.",
+                        style=BODY_TEXT_STYLE,
                     ),
                     html.Div(
                         style={"marginTop": "16px"},
                         children=[
                             dcc.Graph(
-                                id="gap-bar",
-                                figure=make_gap_bar(df_state),
+                                id="eoc-gap-bar",
+                                figure=make_eoc_gap_bar(df_state),
                                 style={"height": "750px"},
                                 config={"displaylogo": False},
                             )
                         ],
                     ),
                     html.Div(
-                        "Proposed bills excluded from enacted bars. "
-                        "States with zero enacted EoC protections show no dark bar. "
-                        "CO and UT at bottom — smallest gap, most honest governance.",
+                        "Sorted by enacted coverage — most at top. "
+                        "CO and UT at top: passed everything they introduced. "
+                        "MA, RI, IL, TX near bottom: introduced protections covering all 8 categories, "
+                        "passed none. "
+                        "States that proposed nothing and passed nothing appear at the very bottom.",
                         style=LIMITATION_STYLE,
                     ),
                 ],
             ),
-                        # ── Tag Coverage ──────────────────────────────────
+
+            # ── RAI Gap Bar ───────────────────────────────────
+            html.Div(
+                style=CARD_STYLE,
+                children=[
+                    html.Div("Interactive section 2b of 3", style=KICKER_STYLE),
+                    html.H2(
+                        "Standard Regulatory Protections: What Was Introduced vs. What Became Law",
+                        style=SECTION_HEADER_STYLE,
+                    ),
+                    html.P(
+                        "These 17 protections — transparency, data privacy, bias auditing, "
+                        "civil penalties, consumer protection — represent the dominant model "
+                        "of AI regulation. They are technically important. "
+                        "They were designed for rational, autonomous users. "
+                        "Compare this chart to the one above: states that appear active here "
+                        "may show almost nothing on the care-based chart. "
+                        "That is the gap Tavory (2024) identifies — technically regulated, "
+                        "relationally unprotected.",
+                        style=BODY_TEXT_STYLE,
+                    ),
+                    html.Div(
+                        style={"marginTop": "16px"},
+                        children=[
+                            dcc.Graph(
+                                id="rai-gap-bar",
+                                figure=make_rai_gap_bar(df_state),
+                                style={"height": "750px"},
+                                config={"displaylogo": False},
+                            )
+                        ],
+                    ),
+                    html.Div(
+                        "Sorted independently by standard regulatory enacted coverage. "
+                        "State order differs from the care-based chart above — "
+                        "a state prominent here may be absent above. "
+                        "Texas introduced 16 of 17 standard regulatory protections. None became law.",
+                        style=LIMITATION_STYLE,
+                    ),
+                ],
+            ),
+
+            # ── Tag Coverage ──────────────────────────────────
             html.Div(
                 style=CARD_STYLE,
                 children=[
                     html.Div("Interactive section 3 of 3", style=KICKER_STYLE),
                     html.H2(
-                        "Which Ethics of Care Protections Are Legislatures Enacting?",
+                        "Which Care-Based Protections Are Legislatures Actually Passing?",
                         style=SECTION_HEADER_STYLE,
                     ),
                     html.P(
-                        "Each bar depicts which ethics-of-care protections appeared in MH-AI legislation "
-                        "between 2022 and 2025. Light blue reflects proposed bills. Dark blue reflects "
-                        "enacted law. The rarest protections — those least likely to survive the "
-                        "legislative process — appear at the top.",
+                        "Each bar shows how many bills included a specific care-based protection "
+                        "— split by all bills introduced (light), all that became law (dark), "
+                        "and bills written explicitly for mental health AI that became law (darkest, patterned). "
+                        "The third layer answers a pointed question: even among the 28 bills that "
+                        "legislators specifically wrote for mental health AI, which protections "
+                        "still did not survive into law? "
+                        "Protections at the top of the chart are the rarest in enacted legislation. "
+                        "Hover any bar for the Shumate definition and Tavory's explanation of "
+                        "why that protection matters.",
                         style=BODY_TEXT_STYLE,
                     ),
                     html.Div(
@@ -361,15 +422,18 @@ def make_layout(df_state, df_bills):
                             dcc.Graph(
                                 id="tag-coverage",
                                 figure=make_tag_coverage(df_bills),
-                                style={"height": "420px"},
+                                style={"height": "460px"},
                                 config={"displaylogo": False},
                             )
                         ],
                     ),
                     html.Div(
-                        "Tag presence is binary per bill — a bill either addresses "
-                        "a protection or it does not. Per Shumate et al. (2025): "
-                        "tag assignment was descriptive rather than qualitative.",
+                        "Tag presence is binary per bill — a bill either addresses a protection "
+                        "or it does not. Per Shumate et al. (2025): tag assignment was descriptive "
+                        "rather than qualitative. The explicitly MH-AI layer uses taxonomy code E "
+                        "from Shumate et al.'s classification system, representing bills that "
+                        "directly and intentionally targeted mental health AI rather than "
+                        "incidentally covering it through broader legislation.",
                         style=LIMITATION_STYLE,
                     ),
                 ],

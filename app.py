@@ -16,6 +16,7 @@ import dash
 from mhai.fetch import fetch_bills
 from mhai.index import compute_state_index
 from mhai.layout import make_layout
+from mhai.figures import make_choropleth, make_eoc_gap_bar, make_rai_gap_bar, make_tag_coverage
 
 # ── Data ──────────────────────────────────────────────────────
 df_bills = fetch_bills()

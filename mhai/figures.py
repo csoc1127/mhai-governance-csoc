@@ -209,7 +209,7 @@ def make_gap_bar(df: pd.DataFrame) -> go.Figure:
     """
     dff = df[df["bill_count"] > 0].copy()
     dff["eoc_gap"] = dff["eoc_covered"] - dff["eoc_enacted_count"].fillna(0)
-    dff = dff.sort_values("eoc_gap", ascending=True)
+    dff = dff.sort_values("eoc_enacted_count", ascending=True)
 
     fig = make_subplots(
         rows=1,

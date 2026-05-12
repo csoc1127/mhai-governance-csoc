@@ -131,7 +131,7 @@ def make_layout(df_state, df_bills):
                                 },
                                 children=[
                                     html.H4(
-                                        "The Ethical Gap",
+                                        "The Care Gap",
                                         style={
                                             "margin": "0 0 6px",
                                             "color": "#084594",
@@ -305,14 +305,20 @@ def make_layout(df_state, df_bills):
                         style=SECTION_HEADER_STYLE,
                     ),
                     html.P(
-                        "Each state shows two bars per panel — light is proposed coverage "
-                        "across all introduced bills, dark is enacted coverage only. "
-                        "Left panel shows Ethics of Care protections. Right panel shows "
-                        "Responsible AI protections. The gap between light and dark is the "
-                        "performative gap. States sorted by EoC gap — largest at top. "
-                        "A state can score high on RAI and low on EoC — technically regulated "
-                        "but relationally unprotected. That is Tavory's argument made visible.",
-                        style=BODY_TEXT_STYLE,
+                    "Each state shows two bars per panel — light reflects bills that were introduced, "
+                    "dark reflects bills that became law. "
+                    "The left panel measures care-based protections: whether states have passed laws "
+                    "requiring things like crisis response, the right to speak to a human, informed consent, "
+                    "and developer accountability for harm — the protections most directly tied to "
+                    "vulnerable users in therapeutic relationships. "
+                    "The right panel measures standard AI regulatory protections: transparency, "
+                    "data privacy, bias auditing, civil penalties, and consumer protection — "
+                    "technically important but designed for rational, autonomous users. "
+                    "States at the top passed the most care-based protections into law. "
+                    "A long light bar with no dark bar means a state introduced legislation and passed none. "
+                    "Texas introduced 16 standard regulatory provisions. None became law. "
+                    "Massachusetts introduced care-based protections covering all 8 categories. None became law.",
+                    style=BODY_TEXT_STYLE,
                     ),
                     html.Div(
                         style={"marginTop": "16px"},
